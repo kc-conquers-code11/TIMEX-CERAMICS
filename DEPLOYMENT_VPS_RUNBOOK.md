@@ -52,7 +52,7 @@ Historically, the platform suffered from a **split-brain glitch** where some ope
 
 | Service / Resource | Value / Configuration |
 | :--- | :--- |
-| **VPS IP** | `189.72.155.253` (User: `root`, Port: `22`) |
+| **VPS IP** | `1189.72.155.253` (User: `root`, Port: `22`) |
 | **Web Root Path** | `/var/www/timex-ceramic-new` |
 | **Web Server / Proxy** | Nginx `1.28.3` (Ubuntu Linux) |
 | **Process Manager** | PM2 (`timex-frontend` on port 3000, `timex-backend` on port 5001) |
