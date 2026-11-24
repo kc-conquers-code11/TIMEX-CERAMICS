@@ -1,6 +1,6 @@
 # TIMEX CERAMIC — ENTERPRISE PRODUCTION DEPLOYMENT & DEVOPS RUNBOOK
 
-**Author / Senior Dev:** Timex Engineering Team  
+**Author / Senior Dev:** Timex Engineering Team - Last updated by KC -(kc-conquers-code11)  
 **System Classification:** Production E-Commerce & Surface Catalog Platform  
 **Target Architecture:** Next.js 16 (React 19, Tailwind CSS v4, Webpack) + Node.js Express 5 + MySQL 8 + Nginx + PM2 on Ubuntu Linux  
 **Target Host:** Hostinger Cloud VPS (`189.72.155.253`)  
