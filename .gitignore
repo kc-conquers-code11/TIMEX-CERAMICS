@@ -38,5 +38,9 @@ Thumbs.db
 .vercel
 *.pem
 *.zip
+*.tar
 *.tar.gz
+*.tgz
+*.rar
+*.gz
 .git_backup/
