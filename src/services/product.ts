@@ -179,11 +179,46 @@ export function getStoredProducts(): any[] {
               ? p.availableColors.map((c: any) => cleanSpecValue(c)).filter(Boolean)
               : [];
 
-            const rawColorImages = p.colorImages || {};
+            // Pick the FIRST source that actually has entries. An empty object
+            // (e.g. colorImages: {}) must not shadow a populated color_images_json string.
+            const colorImageCandidates: any[] = [p.colorImages, p.color_images, p.color_images_json];
+            let rawColorImages: any = {};
+            for (const candidate of colorImageCandidates) {
+              if (candidate === undefined || candidate === null) continue;
+              let parsed = candidate;
+              if (typeof parsed === "string") {
+                try {
+                  parsed = JSON.parse(parsed);
+                } catch (_) {
+                  continue;
+                }
+              }
+              if (parsed && typeof parsed === "object" && Object.keys(parsed).length > 0) {
+                rawColorImages = parsed;
+                break;
+              }
+            }
             const cleanColorImages: Record<string, string | string[]> = {};
+            const availColorByLower = new Map<string, string>();
             availableColors.forEach((c: string) => {
-              if (rawColorImages[c]) cleanColorImages[c] = rawColorImages[c];
+              availColorByLower.set(c.toLowerCase(), c);
             });
+            if (rawColorImages && typeof rawColorImages === "object") {
+              Object.entries(rawColorImages).forEach(([k, v]) => {
+                if (typeof k !== "string" || !k.trim()) return;
+                const canonicalKey = availColorByLower.get(k.trim().toLowerCase()) || k.trim();
+                if (typeof v === "string" && v.trim()) {
+                  cleanColorImages[canonicalKey] = v.trim();
+                } else if (Array.isArray(v)) {
+                  const cleanedList = v
+                    .filter((item: any): item is string => typeof item === "string" && Boolean(item.trim()))
+                    .map((item) => item.trim());
+                  if (cleanedList.length > 0) {
+                    cleanColorImages[canonicalKey] = cleanedList;
+                  }
+                }
+              });
+            }
 
             const rawColorHexes = p.colorHexes || p.color_hexes || {};
             const cleanColorHexes: Record<string, string> = {};
@@ -292,6 +327,7 @@ export function getStoredProducts(): any[] {
               color,
               availableColors,
               colorImages: cleanColorImages,
+              color_images: cleanColorImages,
               colorHexes: cleanColorHexes,
               color_hexes: cleanColorHexes,
               sizeImages: cleanSizeImages,
