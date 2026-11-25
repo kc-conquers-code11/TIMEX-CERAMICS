@@ -63,16 +63,10 @@ function ensureStoreReady() {
       }
     }
 
-    // Safely merge 106 corrected products if corrected_products.json exists
-    const correctedPath = path.join(DATA_DIR, "corrected_products.json");
-    if (fs.existsSync(correctedPath) && fs.existsSync(STORE_FILE)) {
-      try {
-        const { runMerge } = require("../scripts/merge-production-data");
-        runMerge();
-      } catch (mergeErr) {
-        // Safe fallback - keep existing store
-      }
-    }
+    // NOTE: One-time data merge (server/scripts/merge-production-data.js) must be run
+    // manually via CLI when needed — never automatically on module load, because
+    // PM2 cluster workers and Next.js processes repeatedly loading db.js would create
+    // unbounded store.backup_pre_merge_*.json files and overwrite runtime store data.
   } catch (err) {
     console.warn("[Database] Could not prepare store directory:", err.message);
   }

@@ -46,11 +46,21 @@ function runMerge() {
   }
 
   if (fs.existsSync(storePath)) {
-    // 1. Create safety backup
+    // 1. Create safety backup (and retain at most the 2 newest backups to prevent disk bloat)
     const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
     const backupPath = path.join(dataDir, `store.backup_pre_merge_${timestamp}.json`);
     fs.copyFileSync(storePath, backupPath);
     console.log(`[Backup Created] ${backupPath}`);
+    try {
+      const oldBackups = fs
+        .readdirSync(dataDir)
+        .filter((f) => f.startsWith("store.backup_pre_merge_") && f.endsWith(".json"))
+        .sort()
+        .reverse();
+      oldBackups.slice(2).forEach((oldFile) => {
+        fs.unlinkSync(path.join(dataDir, oldFile));
+      });
+    } catch (_) {}
 
     // 2. Read existing store
     const store = JSON.parse(fs.readFileSync(storePath, "utf8"));
