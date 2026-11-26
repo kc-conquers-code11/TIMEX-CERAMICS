@@ -343,6 +343,34 @@ export function ProductDetailClient({ product: initialProduct, relatedProducts: 
           }
         })
         .catch(() => {});
+
+      fetch(`/api/v1/products?_t=` + Date.now())
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success && Array.isArray(data.products)) {
+            const currentId = initialProduct?.id;
+            const catId = initialProduct?.categoryId || initialProduct?.category_id;
+            const collId = initialProduct?.collectionId;
+            const catName = initialProduct?.category;
+            let rel = data.products
+              .filter(
+                (p: any) =>
+                  p.id !== currentId &&
+                  (p.categoryId === catId ||
+                    p.category_id === catId ||
+                    p.collectionId === collId ||
+                    p.category === catName)
+              )
+              .slice(0, 10);
+            if (rel.length === 0) {
+              rel = data.products.filter((p: any) => p.id !== currentId).slice(0, 8);
+            }
+            if (rel.length > 0) {
+              setRelatedProducts(rel);
+            }
+          }
+        })
+        .catch(() => {});
     };
 
     refreshProduct();

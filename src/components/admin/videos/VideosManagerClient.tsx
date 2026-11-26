@@ -14,8 +14,6 @@ import {
   Play,
   Film,
 } from "lucide-react";
-import { AdminAuthGuard } from "../AdminAuthGuard";
-import { AdminLayoutShell } from "../AdminLayoutShell";
 import {
   WATCH_AND_CHOOSE_VIDEOS,
   WATCH_AND_CHOOSE_CATEGORIES,
@@ -239,8 +237,6 @@ export function VideosManagerClient() {
   const igCount = videos.filter((v) => v.platform === "Instagram").length;
 
   return (
-    <AdminAuthGuard>
-      <AdminLayoutShell>
         <div className="p-6 md:p-8 space-y-6 max-w-7xl mx-auto">
           {/* Header */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-white/10 pb-6">
@@ -582,7 +578,5 @@ export function VideosManagerClient() {
             </div>
           )}
         </div>
-      </AdminLayoutShell>
-    </AdminAuthGuard>
   );
 }

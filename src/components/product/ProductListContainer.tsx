@@ -92,20 +92,9 @@ export function ProductListContainer({
     }
   }, [initialProducts]);
 
-  // Live Database Rehydration: only fetch if initialProducts empty or on update event
+  // Live Database Rehydration: always sync with MySQL on mount and on update events
   useEffect(() => {
-    if (!initialProducts || initialProducts.length === 0) {
-      fetch("/api/v1/products?activeOnly=true")
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.success && Array.isArray(data.products) && data.products.length > 0) {
-            setLiveProducts(data.products);
-          }
-        })
-        .catch(() => {});
-    }
-
-    const handleUpdate = () => {
+    const refreshLiveProducts = () => {
       fetch("/api/v1/products?activeOnly=true&_t=" + Date.now())
         .then((res) => res.json())
         .then((data) => {
@@ -116,9 +105,11 @@ export function ProductListContainer({
         .catch(() => {});
     };
 
-    window.addEventListener("product-updated", handleUpdate);
-    return () => window.removeEventListener("product-updated", handleUpdate);
-  }, [initialProducts]);
+    refreshLiveProducts();
+
+    window.addEventListener("product-updated", refreshLiveProducts);
+    return () => window.removeEventListener("product-updated", refreshLiveProducts);
+  }, []);
 
   // Filter products across all dimensions
   const products = useMemo(() => {
