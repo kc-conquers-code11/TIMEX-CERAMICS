@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, Fragment } from "react";
+import React, { useState, useEffect, useMemo, useRef, Fragment } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { Search, Mic, Grid, List, Heart, SlidersHorizontal, X, Sparkles, ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react";
@@ -84,10 +84,11 @@ export function ProductListContainer({
   const activeFilter = (searchParams.get("filter") || "").toLowerCase().trim();
 
   const [liveProducts, setLiveProducts] = useState(initialProducts);
+  const hasHydratedLiveRef = useRef(false);
 
-  // Sync with initialProducts when passed or changed
+  // Sync with initialProducts only before live MySQL rehydration completes
   useEffect(() => {
-    if (initialProducts && initialProducts.length > 0) {
+    if (!hasHydratedLiveRef.current && initialProducts && initialProducts.length > 0) {
       setLiveProducts(initialProducts);
     }
   }, [initialProducts]);
@@ -99,6 +100,7 @@ export function ProductListContainer({
         .then((res) => res.json())
         .then((data) => {
           if (data.success && Array.isArray(data.products) && data.products.length > 0) {
+            hasHydratedLiveRef.current = true;
             setLiveProducts(data.products);
           }
         })

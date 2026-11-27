@@ -73,6 +73,10 @@ export function PageSeoTab() {
       og_title: item.og_title || item.seo_title || item.title || "",
       og_description: item.og_description || item.meta_description || "",
       og_image: item.og_image || "",
+      twitter_title: item.twitter_title || item.og_title || item.seo_title || item.title || "",
+      twitter_description: item.twitter_description || item.og_description || item.meta_description || "",
+      twitter_image: item.twitter_image || item.og_image || "",
+      twitter_card: item.twitter_card || "summary_large_image",
       schema_type: item.schema_type || (item.content_type === "product" ? "Product" : item.content_type === "blog" ? "Article" : "WebPage"),
       schema_data: item.schema_data || "",
       seo_score: item.seo_score || 70,
@@ -451,25 +455,73 @@ export function PageSeoTab() {
                 </div>
               </div>
 
-              {/* 7. Social / OpenGraph Meta */}
+              {/* 7a. Facebook / Open Graph Meta */}
               <div className="p-4 bg-[#111827] border border-white/10 rounded-2xl space-y-3">
                 <span className="text-xs font-bold text-gray-200 flex items-center gap-1.5">
                   <Share2 className="w-3.5 h-3.5 text-[#c5a880]" />
-                  Social Share (Open Graph & Twitter)
+                  Facebook (Open Graph)
                 </span>
                 <div className="space-y-2">
                   <input
                     type="text"
-                    value={formData.og_title}
+                    value={formData.og_title || ""}
                     onChange={(e) => setFormData({ ...formData, og_title: e.target.value })}
-                    placeholder="Social Title (defaults to SEO title)"
+                    placeholder="Facebook / OG Title (defaults to SEO title)"
+                    className="w-full bg-[#090d16] border border-white/10 rounded-xl px-3.5 py-2 text-xs text-white placeholder-gray-500"
+                  />
+                  <textarea
+                    rows={2}
+                    value={formData.og_description || ""}
+                    onChange={(e) => setFormData({ ...formData, og_description: e.target.value })}
+                    placeholder="Facebook / OG Description"
                     className="w-full bg-[#090d16] border border-white/10 rounded-xl px-3.5 py-2 text-xs text-white placeholder-gray-500"
                   />
                   <input
                     type="text"
-                    value={formData.og_image}
+                    value={formData.og_image || ""}
                     onChange={(e) => setFormData({ ...formData, og_image: e.target.value })}
-                    placeholder="Open Graph Image URL (1200x630)"
+                    placeholder="Facebook / OG Image URL (1200x630)"
+                    className="w-full bg-[#090d16] border border-white/10 rounded-xl px-3.5 py-2 text-xs text-white placeholder-gray-500"
+                  />
+                </div>
+              </div>
+
+              {/* 7b. Twitter / X Card Meta */}
+              <div className="p-4 bg-[#111827] border border-white/10 rounded-2xl space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-gray-200 flex items-center gap-1.5">
+                    <Share2 className="w-3.5 h-3.5 text-[#c5a880]" />
+                    Twitter / X Card
+                  </span>
+                  <select
+                    value={formData.twitter_card || "summary_large_image"}
+                    onChange={(e) => setFormData({ ...formData, twitter_card: e.target.value })}
+                    className="bg-[#090d16] border border-white/10 rounded-lg px-2.5 py-1 text-xs text-white"
+                  >
+                    <option value="summary_large_image">Summary Large Image</option>
+                    <option value="summary">Summary</option>
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <input
+                    type="text"
+                    value={formData.twitter_title || ""}
+                    onChange={(e) => setFormData({ ...formData, twitter_title: e.target.value })}
+                    placeholder="Twitter Title"
+                    className="w-full bg-[#090d16] border border-white/10 rounded-xl px-3.5 py-2 text-xs text-white placeholder-gray-500"
+                  />
+                  <textarea
+                    rows={2}
+                    value={formData.twitter_description || ""}
+                    onChange={(e) => setFormData({ ...formData, twitter_description: e.target.value })}
+                    placeholder="Twitter Description"
+                    className="w-full bg-[#090d16] border border-white/10 rounded-xl px-3.5 py-2 text-xs text-white placeholder-gray-500"
+                  />
+                  <input
+                    type="text"
+                    value={formData.twitter_image || ""}
+                    onChange={(e) => setFormData({ ...formData, twitter_image: e.target.value })}
+                    placeholder="Twitter Image URL (1200x675)"
                     className="w-full bg-[#090d16] border border-white/10 rounded-xl px-3.5 py-2 text-xs text-white placeholder-gray-500"
                   />
                 </div>

@@ -393,7 +393,6 @@ export function getProductColorImage(product: any, colorName?: string): string |
       map = JSON.parse(product.color_images_json);
     } catch (_) {}
   }
-  if (!map || typeof map !== "object") return null;
 
   const targetTrimmed = colorName.trim();
   if (!targetTrimmed) return null;
@@ -407,16 +406,30 @@ export function getProductColorImage(product: any, colorName?: string): string |
     return null;
   };
 
-  if (map[targetTrimmed] !== undefined) {
-    const first = extractFirst(map[targetTrimmed]);
-    if (first) return first;
-  }
-  const lowerTarget = targetTrimmed.toLowerCase();
-  for (const [k, v] of Object.entries(map)) {
-    if (k.toLowerCase() === lowerTarget) {
-      const first = extractFirst(v);
+  if (map && typeof map === "object") {
+    if (map[targetTrimmed] !== undefined) {
+      const first = extractFirst(map[targetTrimmed]);
       if (first) return first;
     }
+    const lowerTarget = targetTrimmed.toLowerCase();
+    for (const [k, v] of Object.entries(map)) {
+      if (k.toLowerCase() === lowerTarget) {
+        const first = extractFirst(v);
+        if (first) return first;
+      }
+    }
+  }
+
+  // Fallback: boundary-safe filename match in product.images (e.g. Belle-Beige-240-x-740.webp)
+  if (Array.isArray(product.images) && product.images.length > 0) {
+    const escaped = targetTrimmed.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const tokenRegex = new RegExp(`(^|[^a-z0-9])${escaped}([^a-z0-9]|$)`, "i");
+    const filenameMatch = product.images.find((img: any) => {
+      if (typeof img !== "string" || !img.trim()) return false;
+      const filename = img.split("/").pop() || img;
+      return tokenRegex.test(filename);
+    });
+    if (filenameMatch) return filenameMatch.trim();
   }
 
   return null;

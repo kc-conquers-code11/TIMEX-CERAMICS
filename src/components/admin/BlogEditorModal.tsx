@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import {
   X,
   Heading2,
@@ -207,7 +208,7 @@ export function BlogEditorModal({
     setContentViewMode("editor");
   }, [editingBlog, isOpen]);
 
-  if (!isOpen) return null;
+  if (!isOpen || typeof document === "undefined") return null;
 
   const handleTitleChange = (title: string) => {
     setForm((prev) => {
@@ -266,8 +267,8 @@ export function BlogEditorModal({
     await onSave(form);
   };
 
-  return (
-    <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
+  return createPortal(
+    <div className="dark-scrollbars fixed inset-0 z-[9999] bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-hidden">
       <div className="bg-[#0b101d] border border-white/10 rounded-3xl max-w-4xl w-full max-h-[92vh] flex flex-col shadow-2xl overflow-hidden relative">
         {/* Modal Header */}
         <div className="p-5 md:p-6 border-b border-white/10 flex items-center justify-between bg-[#0e1628]/90">
@@ -828,6 +829,7 @@ export function BlogEditorModal({
           </div>
         </div>
       )}
-    </div>
+    </div>,
+    document.body
   );
 }
