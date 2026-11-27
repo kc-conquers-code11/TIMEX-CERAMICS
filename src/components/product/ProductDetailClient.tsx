@@ -1,3 +1,4 @@
+4
 "use client";
 
 import { useState, useRef, useEffect, useMemo } from "react";
@@ -523,6 +524,7 @@ export function ProductDetailClient({ product: initialProduct, relatedProducts: 
 
   const [selectedSize, setSelectedSize] = useState<string>("");
   const [selectedColor, setSelectedColor] = useState<string>("");
+  const appliedUrlColorRef = useRef<string>("");
 
   // Sync selectedSize from URL param or default to first available
   useEffect(() => {
@@ -656,8 +658,28 @@ export function ProductDetailClient({ product: initialProduct, relatedProducts: 
     return productImages[0] || resolveProductImage("", product.categoryId, 0);
   };
 
-  // Synchronize activeImg whenever selectedSize or selectedColor changes
+  // Synchronize activeImg whenever selectedSize/selectedColor or URL ?color= param applies
   useEffect(() => {
+    const urlColor = searchParams?.get("color");
+    if (urlColor && selectedColor) {
+      const urlKey = `${product?.id || product?.slug}:${selectedColor.toLowerCase()}:${productImages.length}`;
+      if (appliedUrlColorRef.current !== urlKey) {
+        const norm = (c: string) => c.replace(/\s+/g, "").toLowerCase();
+        if (norm(urlColor) === norm(selectedColor)) {
+          const target = resolveActiveProductImage(selectedSize, selectedColor);
+          if (target) {
+            setActiveImg(target);
+            const targetIdx = galleryItems.findIndex((it) => it.type === "image" && it.url === target);
+            if (targetIdx !== -1) {
+              setActiveItemIndex(targetIdx);
+            }
+          }
+          appliedUrlColorRef.current = urlKey;
+          return;
+        }
+      }
+    }
+
     if (selectedSize && selectedColor) {
       const comboImg = findCombinationImage(selectedSize, selectedColor);
       if (comboImg) {
@@ -671,7 +693,7 @@ export function ProductDetailClient({ product: initialProduct, relatedProducts: 
         }
       }
     }
-  }, [selectedSize, selectedColor, product]);
+  }, [selectedSize, selectedColor, product, searchParams, galleryItems, productImages.length]);
 
   const handleColorSelect = (color: string) => {
     setSelectedColor(color);

@@ -4103,14 +4103,19 @@ export function ProductEditorModal({
 
             <button
               type="submit"
-              disabled={saveStatus === "saving" || externalSaving || saveStatus === "saved"}
-              className={`px-6 py-2.5 font-extrabold text-xs uppercase tracking-widest rounded-xl transition-all cursor-pointer shadow-lg flex items-center gap-2 ${
+              disabled={saveStatus === "saving" || externalSaving || saveStatus === "saved" || isUploadingImages}
+              className={`px-6 py-2.5 font-extrabold text-xs uppercase tracking-widest rounded-xl transition-all cursor-pointer shadow-lg flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed ${
                 saveStatus === "saved"
                   ? "bg-emerald-500 text-white shadow-emerald-500/20"
                   : "bg-gradient-to-r from-[#c5a880] to-[#b09166] text-black hover:opacity-90 shadow-[#c5a880]/20"
               }`}
             >
-              {saveStatus === "saving" || externalSaving ? (
+              {isUploadingImages ? (
+                <>
+                  <div className="w-3.5 h-3.5 border-2 border-black border-t-transparent rounded-full animate-spin" />
+                  <span>Uploading Images...</span>
+                </>
+              ) : saveStatus === "saving" || externalSaving ? (
                 <>
                   <div className="w-3.5 h-3.5 border-2 border-black border-t-transparent rounded-full animate-spin" />
                   <span>Saving Product...</span>

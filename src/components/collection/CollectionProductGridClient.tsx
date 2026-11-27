@@ -17,6 +17,79 @@ interface CollectionProductGridClientProps {
   collectionName: string;
 }
 
+function filterCategoryProducts(
+  all: any[],
+  collectionSlug: string,
+  collectionId: string,
+  collectionName: string
+): any[] {
+  const seen = new Set<string>();
+  return all.filter((p: any) => {
+    if (!p) return false;
+    if (
+      p.is_trashed ||
+      p.isTrashed ||
+      p.isActive === false ||
+      p.is_active === false ||
+      p.status === "Inactive" ||
+      p.status === "Draft"
+    ) {
+      return false;
+    }
+
+    const isMatch =
+      matchesProductCategory(p, collectionSlug) ||
+      matchesProductCategory(p, collectionId) ||
+      matchesProductCategory(p, collectionName);
+
+    if (!isMatch) return false;
+
+    const key = String(p.id || p.slug || "").trim();
+    if (key) {
+      if (seen.has(key)) return false;
+      seen.add(key);
+    }
+    return true;
+  });
+}
+
+export function LiveCategoryCount({
+  initialCount,
+  collectionSlug,
+  collectionId,
+  collectionName,
+}: {
+  initialCount: number;
+  collectionSlug: string;
+  collectionId: string;
+  collectionName: string;
+}) {
+  const [count, setCount] = useState<number>(initialCount);
+
+  useEffect(() => {
+    const syncCount = () => {
+      fetch("/api/v1/products?_t=" + Date.now())
+        .then((res) => res.json())
+        .then((data) => {
+          const all = Array.isArray(data.products) ? data.products : Array.isArray(data) ? data : [];
+          if (all.length > 0) {
+            setCount(filterCategoryProducts(all, collectionSlug, collectionId, collectionName).length);
+          }
+        })
+        .catch(() => {});
+    };
+    syncCount();
+    window.addEventListener("product-updated", syncCount);
+    return () => window.removeEventListener("product-updated", syncCount);
+  }, [collectionSlug, collectionId, collectionName]);
+
+  return (
+    <span className="block font-serif text-2xl font-bold text-[#C95745]">
+      {count}
+    </span>
+  );
+}
+
 export function CollectionProductGridClient({
   initialProducts,
   collectionSlug,
@@ -52,37 +125,8 @@ export function CollectionProductGridClient({
       .then((data) => {
         const all = Array.isArray(data.products) ? data.products : (Array.isArray(data) ? data : []);
         if (all.length > 0) {
-          const seen = new Set<string>();
-          const matched = all.filter((p: any) => {
-            if (!p) return false;
-            if (
-              p.is_trashed ||
-              p.isTrashed ||
-              p.isActive === false ||
-              p.is_active === false ||
-              p.status === "Inactive" ||
-              p.status === "Draft"
-            ) {
-              return false;
-            }
-
-            const isMatch =
-              matchesProductCategory(p, collectionSlug) ||
-              matchesProductCategory(p, collectionId) ||
-              matchesProductCategory(p, collectionName);
-
-            if (!isMatch) return false;
-
-            const key = String(p.id || p.slug || "").trim();
-            if (key) {
-              if (seen.has(key)) return false;
-              seen.add(key);
-            }
-            return true;
-          });
-
           // Always sync, including empty results, so removals/deactivations reflect
-          setProducts(matched);
+          setProducts(filterCategoryProducts(all, collectionSlug, collectionId, collectionName));
         }
       })
       .catch(() => {});

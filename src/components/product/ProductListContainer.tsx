@@ -804,13 +804,17 @@ export function ProductListContainer({
                       prod.collection ||
                       prod.collection_name ||
                       (prod.category || prod.category_name ? `${prod.category || prod.category_name} Collection` : "Tile Collection");
+                    const listProductHref =
+                      activeColor && activeColor.trim()
+                        ? `/product/${prod.slug}?color=${encodeURIComponent(activeColor.trim())}`
+                        : `/product/${prod.slug}`;
                     return (
                       <div
                         key={prod.id}
                         className="bg-[#FCFBF8] border border-[#EDEAE4] rounded-[2px] overflow-hidden shadow-xs hover:border-[#101B38]/30 p-5 flex flex-col md:flex-row gap-6 transition-all duration-300 group"
                       >
                         <div className="relative w-full md:w-56 h-48 overflow-hidden rounded-[2px] bg-[#EDEAE4] flex-shrink-0">
-                          <Link href={`/product/${prod.slug}`} className="block w-full h-full">
+                          <Link href={listProductHref} className="block w-full h-full">
                             <img
                               src={getProductSpaceImage(prod, activeSpace) || getProductColorImage(prod, activeColor) || resolveProductImage(prod.images?.[0], prod.categoryId, 0)}
                               alt={prod.name}
@@ -827,7 +831,7 @@ export function ProductListContainer({
                         </div>
                         <div className="flex-grow flex flex-col justify-between py-1">
                           <div className="space-y-2">
-                            <Link href={`/product/${prod.slug}`} className="block">
+                            <Link href={listProductHref} className="block">
                               <h3 className="font-serif text-2xl font-bold text-[#101B38] group-hover:text-[#C95745] transition-colors">
                                 {prod.name}
                               </h3>
@@ -851,7 +855,7 @@ export function ProductListContainer({
                                 <Heart className={`w-4 h-4 ${inWishlist ? "fill-[#C95745] text-[#C95745]" : ""}`} />
                               </button>
                               <Link
-                                href={`/product/${prod.slug}`}
+                                href={listProductHref}
                                 className="bg-[#101B38] text-[#FCFBF8] text-xs font-medium tracking-wider uppercase px-5 py-2.5 rounded-[2px] hover:bg-[#C95745] transition-colors"
                               >
                                 View Details

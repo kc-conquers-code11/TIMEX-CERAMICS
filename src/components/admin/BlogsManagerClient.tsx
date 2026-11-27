@@ -114,7 +114,12 @@ export function BlogsManagerClient() {
       const data = await res.json();
 
       if (data.success && data.blog) {
-        showToast(isEdit ? "Blog post updated successfully!" : "New blog post published!");
+        const isDraft = String(data.blog.status || blogData.status || "").toLowerCase() === "draft";
+        showToast(
+          isEdit
+            ? (isDraft ? "Blog draft updated successfully!" : "Blog post updated successfully!")
+            : (isDraft ? "Blog post saved as draft!" : "New blog post published!")
+        );
         setIsModalOpen(false);
 
         setBlogs((prev) => {
@@ -316,7 +321,10 @@ export function BlogsManagerClient() {
                     b.cover_image ||
                     b.image ||
                     "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=600&q=80";
-                  const isActive = b.isActive !== false && b.is_active !== false;
+                  const isActive =
+                    String(b.status || "Published").toLowerCase() !== "draft" &&
+                    b.isActive !== false &&
+                    b.is_active !== false;
                   const authorName =
                     typeof b.author === "object" && b.author !== null
                       ? b.author.name

@@ -10,7 +10,7 @@ import { getCollectionSeoData } from "@/services/collectionSeo";
 import { getSeoMetadata, buildPageMetadata } from "@/services/seo";
 import { ArrowLeft } from "lucide-react";
 import { CollectionSeoSection } from "@/components/collection/CollectionSeoSection";
-import { CollectionProductGridClient } from "@/components/collection/CollectionProductGridClient";
+import { CollectionProductGridClient, LiveCategoryCount } from "@/components/collection/CollectionProductGridClient";
 import { matchesProductCategory } from "@/utils/productCategories";
 
 interface PageProps {
@@ -192,9 +192,12 @@ export default async function ProductCategoryDetailPage({ params }: PageProps) {
 
           <div className="flex items-center justify-center space-x-8 pt-4">
             <div className="text-center">
-              <span className="block font-serif text-2xl font-bold text-[#C95745]">
-                {categoryProducts.length > 0 ? categoryProducts.length : (collection.productCount || 0)}+
-              </span>
+              <LiveCategoryCount
+                initialCount={categoryProducts.length}
+                collectionSlug={collection.slug}
+                collectionId={collection.id}
+                collectionName={collection.name}
+              />
               <span className="text-[9px] uppercase tracking-widest text-[#EDEAE4]/70 font-medium">Designs Available</span>
             </div>
             <div className="w-[1px] h-8 bg-[#EDEAE4]/20" />

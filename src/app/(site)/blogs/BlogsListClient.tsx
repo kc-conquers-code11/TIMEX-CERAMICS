@@ -12,17 +12,19 @@ interface BlogsListClientProps {
 }
 
 export function BlogsListClient({ initialBlogs }: BlogsListClientProps) {
-  const [blogs, setBlogs] = useState(initialBlogs);
+  const [blogs, setBlogs] = useState(() =>
+    (initialBlogs || []).filter((b) => String(b?.status || "Published").toLowerCase() !== "draft")
+  );
   const [selectedCategory, setSelectedCategory] = useState("ALL");
   const [searchQuery, setSearchQuery] = useState("");
 
   // Live Database Rehydration: pulls newest and updated blog articles from API
   useEffect(() => {
-    fetch("/api/v1/blogs?_t=" + Date.now())
+    fetch("/api/v1/blogs?activeOnly=true&_t=" + Date.now())
       .then((res) => res.json())
       .then((data) => {
-        if (data.success && Array.isArray(data.blogs) && data.blogs.length > 0) {
-          setBlogs(data.blogs);
+        if (data.success && Array.isArray(data.blogs)) {
+          setBlogs(data.blogs.filter((b: any) => String(b?.status || "Published").toLowerCase() !== "draft"));
         }
       })
       .catch(() => {});

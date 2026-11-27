@@ -1340,17 +1340,39 @@ router.put("/:id", async (req, res) => {
         );
         if (rows.length > 0) {
           const r = rows[0];
-          const imgs = r.images_json ? JSON.parse(r.images_json) : [];
-          let spImgs = {};
-          try { if (r.space_images_json) spImgs = JSON.parse(r.space_images_json); } catch (_) {}
-          let secCats = [];
-          try { if (r.secondary_categories_json) secCats = JSON.parse(r.secondary_categories_json); } catch (_) {}
-          let subCats = [];
-          try { if (r.subcategories_json) subCats = JSON.parse(r.subcategories_json); } catch (_) {}
+          const safeJson = (val, fallback) => {
+            if (!val) return fallback;
+            if (typeof val === "object") return val;
+            try { return JSON.parse(val); } catch (_) { return fallback; }
+          };
+          const imgs = safeJson(r.images_json, []);
+          const spImgs = safeJson(r.space_images_json, {});
+          const colImgs = safeJson(r.color_images_json, {});
+          const colHexes = safeJson(r.color_hexes_json, {});
+          const szImgs = safeJson(r.size_images_json, {});
+          const comboImgs = safeJson(r.combination_images_json, {});
+          const comboMaps = safeJson(r.combination_product_mappings_json, []);
+          const availCols = safeJson(r.available_colors_json, []);
+          const availSizes = safeJson(r.available_sizes_json, []);
+          const spacesArr = safeJson(r.spaces_json, []);
+          const sizeList = safeJson(r.tiles_by_size_list_json, []);
+          const secCats = safeJson(r.secondary_categories_json, []);
+          const subCats = safeJson(r.subcategories_json, []);
           current = normalizeProduct({
             ...r,
             images: imgs,
             spaceImages: spImgs,
+            space_images: spImgs,
+            colorImages: colImgs,
+            colorHexes: colHexes,
+            color_hexes: colHexes,
+            sizeImages: szImgs,
+            combinationImages: comboImgs,
+            combinationProductMappings: comboMaps,
+            availableColors: availCols,
+            availableSizes: availSizes,
+            spaces: spacesArr,
+            tilesBySizeList: sizeList,
             secondaryCategories: secCats,
             secondary_categories: secCats,
             subcategories: subCats,
@@ -1455,17 +1477,39 @@ router.delete("/:id", async (req, res) => {
         );
         if (rows.length > 0) {
           const r = rows[0];
-          const imgs = r.images_json ? JSON.parse(r.images_json) : [];
-          let spImgs = {};
-          try { if (r.space_images_json) spImgs = JSON.parse(r.space_images_json); } catch (_) {}
-          let secCats = [];
-          try { if (r.secondary_categories_json) secCats = JSON.parse(r.secondary_categories_json); } catch (_) {}
-          let subCats = [];
-          try { if (r.subcategories_json) subCats = JSON.parse(r.subcategories_json); } catch (_) {}
+          const safeJson = (val, fallback) => {
+            if (!val) return fallback;
+            if (typeof val === "object") return val;
+            try { return JSON.parse(val); } catch (_) { return fallback; }
+          };
+          const imgs = safeJson(r.images_json, []);
+          const spImgs = safeJson(r.space_images_json, {});
+          const colImgs = safeJson(r.color_images_json, {});
+          const colHexes = safeJson(r.color_hexes_json, {});
+          const szImgs = safeJson(r.size_images_json, {});
+          const comboImgs = safeJson(r.combination_images_json, {});
+          const comboMaps = safeJson(r.combination_product_mappings_json, []);
+          const availCols = safeJson(r.available_colors_json, []);
+          const availSizes = safeJson(r.available_sizes_json, []);
+          const spacesArr = safeJson(r.spaces_json, []);
+          const sizeList = safeJson(r.tiles_by_size_list_json, []);
+          const secCats = safeJson(r.secondary_categories_json, []);
+          const subCats = safeJson(r.subcategories_json, []);
           current = normalizeProduct({
             ...r,
             images: imgs,
             spaceImages: spImgs,
+            space_images: spImgs,
+            colorImages: colImgs,
+            colorHexes: colHexes,
+            color_hexes: colHexes,
+            sizeImages: szImgs,
+            combinationImages: comboImgs,
+            combinationProductMappings: comboMaps,
+            availableColors: availCols,
+            availableSizes: availSizes,
+            spaces: spacesArr,
+            tilesBySizeList: sizeList,
             secondaryCategories: secCats,
             secondary_categories: secCats,
             subcategories: subCats,

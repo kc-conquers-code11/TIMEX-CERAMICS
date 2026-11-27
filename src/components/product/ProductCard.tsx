@@ -65,10 +65,15 @@ export function ProductCard({ product, priority = false, space, color }: Product
     0
   );
 
+  const productHref =
+    color && color.trim()
+      ? `/product/${product.slug}?color=${encodeURIComponent(color.trim())}`
+      : `/product/${product.slug}`;
+
   return (
     <div className="group flex flex-col bg-[#FCFBF8] border border-[#EDEAE4] rounded-[2px] overflow-hidden hover:shadow-lg hover:border-[#C95745]/40 transition-all duration-300 h-full relative">
       {/* Product Image Area */}
-      <Link href={`/product/${product.slug}`} className="block relative aspect-[4/3] w-full bg-[#EDEAE4]/40 overflow-hidden">
+      <Link href={productHref} className="block relative aspect-[4/3] w-full bg-[#EDEAE4]/40 overflow-hidden">
         <Image
           src={displayImage}
           alt={product.name}
@@ -112,7 +117,7 @@ export function ProductCard({ product, priority = false, space, color }: Product
       {/* Clean Info Area */}
       <div className="p-4 sm:p-5 flex-grow flex flex-col justify-between">
         <div>
-          <Link href={`/product/${product.slug}`} className="block">
+          <Link href={productHref} className="block">
             <h3 className="font-serif text-lg sm:text-xl font-normal text-[#101B38] group-hover:text-[#C95745] transition-colors duration-200 line-clamp-1">
               {product.name}
             </h3>

@@ -49,6 +49,7 @@ function mergeStoreBlog(blog, store) {
 // GET /api/v1/blogs
 router.get("/", async (req, res) => {
   const allowTrashed = req.query.includeTrashed === "true";
+  const activeOnly = req.query.activeOnly === "true";
 
   try {
     if (isMysqlConnected()) {
@@ -59,6 +60,9 @@ router.get("/", async (req, res) => {
       if (!allowTrashed) {
         blogs = blogs.filter((b) => !b.is_trashed);
       }
+      if (activeOnly) {
+        blogs = blogs.filter((b) => String(b.status || "Published").toLowerCase() !== "draft");
+      }
       return res.json({ success: true, count: blogs.length, blogs });
     }
 
@@ -66,6 +70,9 @@ router.get("/", async (req, res) => {
     let blogs = store.blogs || [];
     if (!allowTrashed) {
       blogs = blogs.filter((b) => !b.is_trashed);
+    }
+    if (activeOnly) {
+      blogs = blogs.filter((b) => String(b.status || "Published").toLowerCase() !== "draft");
     }
     return res.json({ success: true, count: blogs.length, blogs });
   } catch (err) {
@@ -189,13 +196,27 @@ router.put("/:id", async (req, res) => {
   try {
     const store = loadFallbackStore();
     const blogs = store.blogs || [];
-    const idx = blogs.findIndex((b) => b.id === id || b.slug === id);
+    let idx = blogs.findIndex((b) => b.id === id || b.slug === id);
+    let current = idx !== -1 ? blogs[idx] : null;
 
-    if (idx === -1) {
+    if (!current && isMysqlConnected()) {
+      try {
+        const pool = getPool();
+        const norm = id.toLowerCase().trim();
+        const [rows] = await pool.query(
+          "SELECT * FROM blogs WHERE LOWER(id) = ? OR LOWER(slug) = ? LIMIT 1",
+          [norm, norm]
+        );
+        if (rows.length > 0) {
+          current = mergeStoreBlog(parseMysqlBlog(rows[0]), store);
+        }
+      } catch (_) {}
+    }
+
+    if (!current) {
       return res.status(404).json({ success: false, error: "Blog post not found." });
     }
 
-    const current = blogs[idx];
     const updated = {
       ...current,
       ...updates,
@@ -225,7 +246,11 @@ router.put("/:id", async (req, res) => {
       );
     }
 
-    blogs[idx] = updated;
+    if (idx !== -1) {
+      blogs[idx] = updated;
+    } else {
+      blogs.unshift(updated);
+    }
     store.blogs = blogs;
     saveFallbackStore(store);
 
